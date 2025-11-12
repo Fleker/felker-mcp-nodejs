@@ -3,6 +3,7 @@ import { FastMCP } from "fastmcp";
 import getLetterCountTool from "./modules/get-letter-count";
 import getMathComparisonTool from "./modules/get-math-comparison";
 import feedly from "./modules/feedly";
+import tayneTool from "./modules/tayne";
 
 const server = new FastMCP({
   name: "Felker MCP",
@@ -12,6 +13,7 @@ const server = new FastMCP({
 server.addTool(feedly)
 server.addTool(getLetterCountTool)
 server.addTool(getMathComparisonTool)
+server.addTool(tayneTool)
 
 server.start({
   transportType: "httpStream",
