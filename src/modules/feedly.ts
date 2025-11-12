@@ -10,6 +10,11 @@ interface FeedlyArticle {
   [key: string]: any;
 }
 
+interface FeedlyResponse {
+  items: FeedlyArticle[];
+  continuation?: string;
+}
+
 /**
  * Makes an API call to the Feedly cloud API.
  * 
@@ -69,6 +74,72 @@ function getContent(article: FeedlyArticle): string {
     return articleContent.replace(/<img .*?>/g, '');
 }
 
+/**
+ * Fetches news articles from Feedly.
+ * Note: To register this with an MCP server, you would pass this function 
+ * to your MCP SDK's tool definition method.
+ */
+export async function fetchFeedlyArticles(accessToken?: string, userId?: string) {
+  if (!accessToken || !userId) {
+    return { error: "Feedly access token or user ID not found in environment variables." };
+  }
+
+  const allArticles: FeedlyArticle[] = [];
+  let continuation: string | undefined = undefined;
+
+  console.log('Beginning to download articles...');
+
+  // Main pagination loop
+  while (true) {
+    const query = continuation ? `&continuation=${continuation}` : '';
+    const path = `streams/contents?streamId=user/${userId}/category/global.all&unreadOnly=true&count=250${query}`;
+
+    try {
+      const res: FeedlyResponse = await feedlyApiCall(accessToken, path);
+
+      const items = res.items || [];
+      if (items.length === 0) {
+        console.log('No items found or end of stream.');
+        break;
+      }
+
+      allArticles.push(...items);
+      continuation = res.continuation;
+
+      if (!continuation) {
+        break; // Exit loop when there's no more continuation token
+      }
+
+    } catch (e: any) {
+      const errorMessage = e.toString();
+      
+      if (errorMessage.includes('401')) {
+        console.log('Error: Access token expired. Please request a new one.');
+      } else if (errorMessage.includes('429')) {
+        console.log('Error: API rate limit reached.');
+      } else {
+        console.log(`An unexpected error occurred: ${errorMessage}`);
+      }
+      break;
+    }
+  }
+
+  console.log(`Loaded ${allArticles.length} items.`);
+
+  const contextArticles = allArticles.map(article => ({
+    content: getContent(article),
+    origin: article.origin,
+    title: article.title,
+    author: article.author
+  }));
+
+  console.log(contextArticles);
+
+  return {
+    articles: contextArticles,
+  };
+}
+
 const feedly: Tool<
   any,
   z.ZodObject<{}>
@@ -83,45 +154,16 @@ const feedly: Tool<
     A JSON object containing an array of article titles.
   `,
   parameters: z.object({}),
-  execute: async () => {
-    const feedlyToken = '';
-    const userId = '';
+  execute: async (_, context) => {
+    // Fetch header items
+    console.log(context.session?.headers)
+    const feedlyToken = context.session?.headers?.feedly_access_token;
+    const userId = context.session?.headers?.feedly_user_id;
     
     console.log('Beginning to download articles...');
 
-    const allArticles: FeedlyArticle[] = [];
-    let continuation: string | undefined = undefined;
-
-    while (true) {
-      try {
-        const query = continuation ? `&continuation=${continuation}` : '';
-        const path = `streams/contents?streamId=user/${userId}/category/global.all&unreadOnly=true&count=250${query}`;
-        
-        const res = await feedlyApiCall(feedlyToken, path);
-        const items: FeedlyArticle[] = res.items || [];
-
-        if (items.length === 0) {
-          console.log('No more unread items found or end of stream.');
-          break;
-        }
-
-        allArticles.push(...items);
-        continuation = res.continuation;
-
-        if (!continuation) {
-          break; // Exit loop when there's no more continuation token
-        }
-      } catch (e) {
-        const error = e as Error;
-        // The UserError from feedlyApiCall already provides a good message.
-        console.error(`An error occurred while fetching articles: ${error.message}`);
-        // We re-throw the error to let the MCP framework handle it.
-        throw e;
-      }
-    }
-    console.log(`Downloaded ${allArticles.length} items.`);
-    const headlines = allArticles.map(article => article.title || 'No Title');
-    return JSON.stringify({ headlines, count: allArticles.length });
+    const res = await fetchFeedlyArticles(feedlyToken, userId)
+    return JSON.stringify(res)
   }
 }
 
