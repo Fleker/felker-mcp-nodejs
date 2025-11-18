@@ -5,6 +5,7 @@
   "scripts": {
     "build": "tsc",
     "execute": "tsc && node dist/index.js",
+    "start": "tsc && node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,5 +15,8 @@
     "fastmcp": "^3.22.0",
     "open": "^10.2.0",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1"
   }
 }
