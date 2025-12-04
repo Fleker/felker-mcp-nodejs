@@ -1,5 +1,5 @@
 import { Tool } from "fastmcp";
-import { exec } from "node:child_process";
+import { exec } from "child_process";
 import * as path from "path";
 import { z } from "zod";
 

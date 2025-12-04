@@ -5,6 +5,7 @@ import getMathComparisonTool from "./modules/get-math-comparison";
 import feedly from "./modules/feedly";
 import tayneTool from "./modules/tayne";
 import buyCardsTool from "./modules/buy-cards";
+import wordCounter from "./modules/word-counter";
 import { IncomingHttpHeaders } from "http";
 
 interface SessionData {
@@ -28,6 +29,7 @@ server.addTool(feedly)
 server.addTool(getLetterCountTool)
 server.addTool(getMathComparisonTool)
 server.addTool(tayneTool)
+server.addTool(wordCounter)
 
 server.start({
   transportType: "httpStream",
