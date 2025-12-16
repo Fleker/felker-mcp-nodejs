@@ -7,7 +7,13 @@ if [ ! -f "/mnt/c/Users/handn/Development/mcp-felker/card-urls.txt" ]; then
     exit 1
 fi
 
-gemini --yolo --prompt "hello"
+echo "hello"
+#
+    # "browsermcp": {
+    #   "command": "npx",
+    #   "args": ["@browsermcp/mcp@latest"]
+    # },
+# gemini --yolo --prompt "hello"
 
 # Read each URL from the file line by line
 while read -r url; do

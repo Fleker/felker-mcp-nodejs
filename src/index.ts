@@ -6,6 +6,7 @@ import feedly from "./modules/feedly";
 import tayneTool from "./modules/tayne";
 import buyCardsTool from "./modules/buy-cards";
 import wordCounter from "./modules/word-counter";
+import Browser from './modules/browser-tasks'
 import { IncomingHttpHeaders } from "http";
 
 interface SessionData {
@@ -15,7 +16,7 @@ interface SessionData {
 
 const server = new FastMCP({
   name: "Felker MCP",
-  version: "2025.11.11",
+  version: "2025.12.15",
   authenticate: async (request: any): Promise<SessionData> => {
     // Authentication logic
     return {
@@ -30,6 +31,7 @@ server.addTool(getLetterCountTool)
 server.addTool(getMathComparisonTool)
 server.addTool(tayneTool)
 server.addTool(wordCounter)
+server.addTool(Browser.fetchGoodreadsPages)
 
 server.start({
   transportType: "httpStream",
