@@ -21,8 +21,8 @@ const fetchGoodreadsPages: Tool<any, z.ZodObject<{}>> = {
   execute: async (_, context) => {
     const instructions = [
       `visit https://www.goodreads.com/review/list/5246265-nick?ref=nav_mybooks&shelf=to-read
-      and scroll to the end multiple times until the infinite scrolling is done.`,
-      `then run this script in that tab:
+      and scroll to the end multiple times until the infinite scrolling is done.
+      then run this script in the tab:
       
       const numPages = [...document.querySelectorAll('.field.num_pages')]
         .map(x => parseInt(x.innerText.replace(/,/g, '')
