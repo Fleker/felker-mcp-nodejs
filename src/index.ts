@@ -32,6 +32,7 @@ server.addTool(getMathComparisonTool)
 server.addTool(tayneTool)
 server.addTool(wordCounter)
 server.addTool(Browser.fetchGoodreadsPages)
+server.addTool(Browser.fetchPlexMovieTime)
 
 server.start({
   transportType: "httpStream",
