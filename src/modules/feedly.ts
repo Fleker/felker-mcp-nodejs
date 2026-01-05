@@ -7,6 +7,12 @@ interface FeedlyArticle {
   content?: { content?: string };
   summary?: { content?: string };
   fullContent?: string;
+  origin?: {
+    title?: string;
+    htmlUrl?: string;
+    streamId?: string;
+  };
+  author?: string;
   [key: string]: any;
 }
 
@@ -64,14 +70,28 @@ async function feedlyApiCall(
  * @returns The cleaned article content.
  */
 function getContent(article: FeedlyArticle): string {
-    const articleContent: string =
-        article?.content?.content ||
-        article?.summary?.content ||
-        article?.fullContent ||
-        '';
-    
-    // Remove <img> tags from the content
-    return articleContent.replace(/<img .*?>/g, '');
+  // console.log(article.origin);
+  // if (article.origin?.title === 'Rowan Blog') {
+  //   console.log(article);
+  //   console.log(article?.content?.content?.length,
+  //     article?.summary?.content?.length,
+  //     article?.fullContent?.length);
+  // }
+
+  // console.log('Extracting content from article:', article.title);
+  const contents = [
+    article?.content?.content,
+    article?.summary?.content,
+    article?.fullContent,
+  ].filter(Boolean) as string[]; // Filter out undefined/null and assert as string[]
+
+  if (contents.length > 0) {
+    // Sort by length in descending order and pick the first one
+    return contents.sort((a, b) => b.length - a.length)[0]
+      .replace(/<img .*?>/g, ''); // Remove <img> tags
+  }
+
+  return '';
 }
 
 /**
@@ -86,8 +106,6 @@ export async function fetchFeedlyArticles(accessToken?: string, userId?: string)
 
   const allArticles: FeedlyArticle[] = [];
   let continuation: string | undefined = undefined;
-
-  console.log('Beginning to download articles...');
 
   // Main pagination loop
   while (true) {
@@ -133,7 +151,7 @@ export async function fetchFeedlyArticles(accessToken?: string, userId?: string)
     author: article.author
   }));
 
-  console.log(contextArticles);
+  // console.log(contextArticles);
 
   return {
     articles: contextArticles,
@@ -156,7 +174,7 @@ const feedly: Tool<
   parameters: z.object({}),
   execute: async (_, context) => {
     // Fetch header items
-    console.log(context.session?.headers)
+    // console.log(context.session?.headers)
     const feedlyToken = context.session?.headers?.feedly_access_token;
     const userId = context.session?.headers?.feedly_user_id;
     
