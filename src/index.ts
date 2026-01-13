@@ -1,11 +1,8 @@
 import { FastMCP,  } from "fastmcp";
 
-import getLetterCountTool from "./modules/get-letter-count";
-import getMathComparisonTool from "./modules/get-math-comparison";
 import feedly from "./modules/feedly";
 import tayneTool from "./modules/tayne";
 import buyCardsTool from "./modules/buy-cards";
-import wordCounter from "./modules/word-counter";
 import Browser from './modules/browser-tasks'
 import { IncomingHttpHeaders } from "http";
 
@@ -27,10 +24,7 @@ const server = new FastMCP({
 
 server.addTool(buyCardsTool)
 server.addTool(feedly)
-server.addTool(getLetterCountTool)
-server.addTool(getMathComparisonTool)
 server.addTool(tayneTool)
-server.addTool(wordCounter)
 server.addTool(Browser.fetchGoodreadsPages)
 server.addTool(Browser.fetchPlexMovieTime)
 
